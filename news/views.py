@@ -1,8 +1,16 @@
 # Импортируем класс, который говорит нам о том,
 # что в этом представлении мы будем выводить список объектов из БД
 from datetime import datetime
-from django.views.generic import ListView, DetailView
+from django.urls import reverse_lazy
+from django.views.generic import (
+    ListView, DetailView
+)
+
+from .filters import PostFilter
+from .forms import PostForm
 from .models import Post
+
+
 
 
 class PostList(ListView):
@@ -17,6 +25,19 @@ class PostList(ListView):
     # Его надо указать, чтобы обратиться к списку объектов в html-шаблоне.
     context_object_name = 'posts'
     paginate_by = 2
+
+   # Переопределяем функцию получения списка товаров
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.filterset = PostFilter(self.request.GET, queryset)
+        return self.filterset.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Добавляем в контекст объект фильтрации.
+        context['filterset'] = self.filterset
+        return context
+
 
 
 class PostDetail(DetailView):
