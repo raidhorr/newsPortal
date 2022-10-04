@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .filters import PostFilter
 from .forms import PostForm
 from .models import Post
+from .tasks import email_article
 
 
 class PostList(ListView):
@@ -62,6 +63,9 @@ class ArticleCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.message = 'A'
+        post.save()
+        pk = post.id
+        email_article.delay(pk)
         return super().form_valid(form)
 
 
@@ -86,6 +90,8 @@ class ArticleUpdate(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         post = form.save(commit=False)
         post.message = 'A'
+        post.save()
+
         return super().form_valid(form)
 
 
