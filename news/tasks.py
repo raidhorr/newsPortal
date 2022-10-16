@@ -21,8 +21,9 @@ def email_article(pk):
 def review():
     mail_list = [usr.email for usr in User.objects.all() if usr.email]
     message = ''
-    for post in Post.object.filter(in_time_gt=datetime.now()-timedelta(days=7)):
-        message += f'{post.preview()}\n'
+    for post in Post.objects.all():
+        if post.time_in > datetime.now()-timedelta(days=7):
+            message += f'{post.preview()}\n'
     send_mail(
         subject=f'Обзор сообщений за  неделю',
         message=message,
